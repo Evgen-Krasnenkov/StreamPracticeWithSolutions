@@ -1,4 +1,6 @@
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -67,26 +69,20 @@ public class StreamPractice {
      */
 
     public List<Person> selectMenByAge(List<Person> peopleList, int fromAge, int toAge) {
-
-
-
-
-
-
-
-
-
-
-
-
+        List<Person> collect = peopleList.stream()
+                .filter(p -> p.getSex().equals(Person.Sex.MAN)
+                        && p.getAge() >= fromAge
+                        && p.getAge() <= toAge)
+                .collect(toList());
 
 
         Predicate<Person> filteredPerson = p -> p.getAge() >= fromAge
                 && p.getAge() <= toAge
                 && p.getSex() == Person.Sex.MAN;
+
         return peopleList.stream()
                 .filter(filteredPerson)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
     /**
      * Given a List of `Person` instances (having `name`, `age` and `sex` fields),
@@ -102,14 +98,23 @@ public class StreamPractice {
     public List<Person> getWorkablePeople(int fromAge, int femaleToAge,
                                           int maleToAge, List<Person> peopleList) {
 
+        List<Person> collect = peopleList.stream()
+                .filter(p -> p.getAge() >= fromAge
+                        && ((p.getSex().equals(Person.Sex.MAN) && p.getAge() <= maleToAge)
+                        || (p.getSex().equals(Person.Sex.WOMAN) && p.getAge() <= femaleToAge))
+                        )
+                .collect(toList());
+
+
         Predicate<Person> filteredPerson =
                 person -> person.getAge() >= fromAge
                         && ((person.getSex() == Person.Sex.MAN && person.getAge() <= maleToAge)
                         || (person.getSex() == Person.Sex.WOMAN && person.getAge() <= femaleToAge));
 
-        return peopleList.stream()
+        List<Person> collect1 = peopleList.stream()
                 .filter(filteredPerson)
-                .collect(Collectors.toList());
+                .collect(toList());
+        return collect1;
     }
     /**
      * Given a List of `Person` instances (having `name`, `age`, `sex` and `cats` fields,
@@ -118,12 +123,22 @@ public class StreamPractice {
      */
 
     public List<String> getCatsNames(List<Person> peopleList, int femaleAge) {
-        return peopleList.stream()
+        List<String> collect = peopleList.stream()
+                .filter(p -> p.getAge() >= femaleAge
+                        && p.getSex().equals(Person.Sex.WOMAN)
+                        && !p.getCats().isEmpty())
+                .flatMap(p -> p.getCats().stream())
+                .map(c -> c.getName())
+                .collect(toList());
+
+
+        List<String> collect1 = peopleList.stream()
                 .filter(person -> person.getSex() == Person.Sex.WOMAN
                         && person.getAge() >= femaleAge)
                 .flatMap(person -> person.getCats().stream())
                 .map(Cat::getName)
-                .collect(Collectors.toList());
+                .collect(toList());
+        return collect1;
     }
     /**
      * Your help with a election is needed. Given list of candidates, where each element
@@ -144,6 +159,6 @@ public class StreamPractice {
                 .filter(candidateValidator)
                 .map(Candidate::getName)
                 .sorted()
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 }
